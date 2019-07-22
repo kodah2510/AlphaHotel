@@ -1,0 +1,264 @@
+@import '_variables.sass'
+@import 'animation'
+@import 'navbar'
+@import 'reservation'
+@import 'modal'
+
+body
+  background-color: $bg-color
+  color: $fg-color
+.footer
+  background-color: $fg-color-2
+  padding-top: 30px
+  padding-bottom: 30px 
+  margin-left: 0px
+  margin-right: 0px
+  width: 100%
+  .container
+    padding-left: 0px
+    padding-right: 0px
+.bg-gruvbox
+  background-color: $bg-color  
+.jumbotron
+  background-color: $fg-color
+  padding-top: 20px
+  padding-bottom: 20px
+.btn
+  &:focus
+    outline: none
+    box-shadow: none
+  &:active
+    outline: none
+    box-shadow: none
+.navbar
+  position: absolute
+  height: 65px
+  width: 100%
+.navbar-toggler
+  border-color: $fg-color!important
+  color: $fg-color!important
+.navbar-brand
+  padding-left: 50px
+  font-size: 25pt
+  color: $fg-color-2!important
+  font-family: 'Dancing Script', cursive
+.nav-item
+  padding-left: 50px
+  padding-right: 50px
+  .nav-link
+    color: #fbf1c7!important
+    &:hover
+      color: #fabd2f!important
+
+.auth-btn-group
+  margin-right: 50px
+  border-radius: 5px
+  
+.btn-auth
+  background-color: #fe8019
+  color: #3c3836
+  &:hover
+    background-color: #d65d03
+    color: #fabd2f
+  &:active
+    outline: none
+.section-title
+  color: $fg-color 
+  font-family: 'DM Serif Display', serif 
+.landing
+  height: 100vh
+  //background-color: rgba(40, 40, 40, 0.6)
+  //background-image: url(img/bg_img_3.png) 
+  //background-repeat: no-repeat
+  //background-size: 100vw auto
+  //background-position: 0 -114px
+  //background-blend-mode: darken
+  //height: 100vh
+  margin-left: 0px!important
+  margin-right: 0px!important
+.landing-img
+  width: 100vw
+  background-color: rgba(40, 40, 40, 0.6)
+  background-image: url(img/bg_img_3.png) 
+  background-repeat: no-repeat
+  background-size: cover
+  background-position: 0 -114px
+  background-blend-mode: darken
+
+.landing-description
+  position: absolute
+  top: 50%
+  transform: translateY(-50%)
+  color: $fg-color
+  height: auto
+  margin-left: 0px
+  margin-right: 0px
+  padding-left: 0px
+  padding-right: 0px
+  .landing-title
+    margin-left: 100px
+    font-family: 'DM Serif Display', serif 
+  .landing-paragraph
+    margin-left: 100px
+    width: 800px
+  .landing-underline
+    color: $fg-color
+    border-color: $fg-color
+    margin-left: 100px
+    width: 500px
+  .landing-btn-group
+    position: relative
+    margin-left: 100px
+    .landing-btn
+      background-color: #d79921
+      color: #282828
+      margin-right: 20px
+      border-radius: 0px
+      &:hover
+        background-color: #fabd2f
+        box-shadow: 0px 0px 5px 4px #fabd2f
+          
+    .landing-btn-outline
+      color: #fabd2f
+      background: rgba(40, 40, 40, 0.1)
+      border-style: solid
+      border-width: 0.5px
+      border-color: #fabd2f
+      border-radius: 0px
+      &:hover
+        background-color: #fabd2f
+        color: #282828
+
+.services-intro
+  margin-left: 0px
+  margin-right: 0px
+  .services-intro-description
+    background-color: #282828
+    height: 100vh
+    h1
+      margin-left: 50px
+      margin-top: 100px
+      color: #fbf1c7
+      font-family: 'Pacifico', cursive
+      font-size: 50px
+    p
+      margin-left: 50px
+      margin-right: 20px
+      text-align: justify
+      color: #fbf1c7
+    table
+      margin-left: 50px
+      margin-right: 50px
+      color: #fbf1c7
+      width: 400px
+      td, th
+        border-color: #8ec07c
+      .border-top-hidden
+        border-top: hidden
+      .border-bottom-hidden
+        border-bottom: hidden
+      .dish-name
+        font-family: 'Satisfy', cursive 
+        font-size: 12pt
+      .dish-price
+        font-family: 'Satisfy', cursive 
+        font-size: 12pt
+        text-align: right 
+      h4
+        color: #fbf1c7
+  .services-intro-img
+    margin-left: 0px
+    margin-right: 0px
+    padding-left: 0px
+    padding-right: 0px
+    .fnd-img
+      height: 100vh
+      width: 100%
+
+.room-container
+  background-color: $bg-color-2
+  padding-bottom: 20px
+.room-row
+  width: 80%
+  margin: auto
+.room-card
+  margin-bottom: 30px
+.room-card-body
+  background-color: $bg-color-3
+  color: $gruv-light-yellow
+  border-color: $gruv-light-blue
+.room-nav
+  color: $fg-color
+  .active
+    background-color: #fabd2f!important
+    color: #1d2021!important  
+  .nav-item
+    padding-left: 0px
+    padding-right: 0px
+  .nav-item:first-child
+    margin-left: 100px
+.room-card
+  background-color: transparent
+  border-color: $gruv-dark-blue 
+.room-description
+  color: $fg-color
+.reservation-form
+  p
+    color: $bg-color-3
+  .form-row
+    margin-top: 10px
+    margin-bottom: 10px
+  #datetimepicker
+    .col
+      padding-left: 5px
+      padding-right: 5px
+.footer
+  h4
+    color: $bg-color-1
+  ul
+    list-style-type: none
+    padding-left: 0
+  a
+    color: $gruv-light-orange
+
+.find-room-btn
+  background-color: $gruv-light-blue
+  border-color: $gruv-light-blue
+  &:hover
+    background-color: $gruv-dark-blue
+    border-color: $gruv-dark-blue
+
+
+//sm
+@media (min-width: 576px) and (max-width: 767.98px)
+  .landing
+    height: 49vh!important 
+  .landing-description
+    position: absolute!important
+    top: 35%!important
+    h1
+      font-size: 150%!important
+    p
+      display: none
+  
+//md
+@media (min-width: 768px) and (max-width: 991.98px) 
+  .landing
+    height: 61vh!important
+  .landing-description
+    position: absolute
+    top: 35%
+    h1
+      font-size: 200%
+    .landing-paragraph
+      font-size: 80%
+      width: 450px
+
+//lg
+@media (min-width: 992px) and (max-width: 1199.98px) 
+  .landing
+    height: 91vh!important
+
+@media (min-width: 1200px)
+  .landing
+    height: 100vh

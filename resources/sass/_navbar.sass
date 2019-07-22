@@ -1,0 +1,41 @@
+
+@import '_variables.sass'
+
+.notice-bell
+  color: $gruv-dark-orange
+  font-size: 20px
+
+.notice-count
+  color: $fg-color-1
+  position: relative
+  top: 0px
+  left: -14px
+  border-radius: 6px
+  border-color: $gruv-dark-green
+  background-color: $gruv-dark-green
+  z-index: 1
+  width: 16px
+  height: 20px
+  font-size: 14px
+  text-align: center
+
+.notification
+  padding-left: 0px!important
+  padding-right: 0px!important
+  .dropdown-toggle::after
+    display: none!important
+  .dropdown-menu
+    width: 302px
+    margin-left: -150px
+    .card-body
+      padding: 5px 0px
+    .newsfeed
+      width: 300px
+      .newsfeed-title
+        margin-bottom: 10px
+        font-size: 12pt
+      .newsfeed-subtitle
+        margin-bottom: 5px
+        font-size: 9pt
+      .newsfeed-text
+        font-size: 10pt
