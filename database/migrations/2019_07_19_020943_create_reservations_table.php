@@ -14,10 +14,13 @@ class CreateReservationsTable extends Migration
     public function up()
     {
         Schema::create('reservations', function (Blueprint $table) {
-            $table->unsignedBigInteger('request_id');
+            $table->bigIncrements('id');
             $table->unsignedBigInteger('room_id');
-            $table->foreign('request_id')->references('id')->on('reservation_requests')->onDelete('cascade');
-           $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade'); 
+            $table->string('name');
+            $table->string('email');
+            $table->string('phone');
+            $table->dateTime('from_date');
+            $table->dateTime('to_date');
         });
     }
 
@@ -29,7 +32,7 @@ class CreateReservationsTable extends Migration
     public function down()
     {
         Schema::table('reservations', function(Blueprint $table) {
-            $table->dropForeign(['request_id', 'room_id']);
+            //$table->dropForeign(['room_id']);
         });
         Schema::dropIfExists('reservations');
     }

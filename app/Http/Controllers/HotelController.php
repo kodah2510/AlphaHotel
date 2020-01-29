@@ -1,14 +1,17 @@
 <?php
 
+use App\Mail\ReservationConfirm;
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\ReservationRequest;
 use App\Room;
 use App\Reservation;
-use Mail;
-use App\Mail\ReservationConfirm;
 use Stripe;
+use Mail;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class HotelController extends Controller
 {
@@ -16,17 +19,12 @@ class HotelController extends Controller
 
     public function index()
     {
-        Stripe\Stripe::setApiKey(config('services.stripe.secret'));
-        $intent = Stripe\PaymentIntent::create([
-            'amount' => 20000,
-            'currency' => 'aud'
-        ]);
-        return view('index', ['intent' => $intent]);
+        return view('index');
     }
 
     public function reservation(Request $request)
     {
-
+        
         $this->validate($request, [
             'name' => 'required|max:255',
             'email' => 'required|email',
@@ -45,6 +43,8 @@ class HotelController extends Controller
         $reservation->room_type = $request->room_type;
         $reservation->from_date = date('Y-m-d', strtotime($request->from_date));
         $reservation->to_date = date('Y-m-d', strtotime($request->to_date));
+        
+        Log::info($reservation);
 
         $is_succeeded = $reservation->save();
         return response()->json(['success' => $is_succeeded]);
@@ -52,49 +52,181 @@ class HotelController extends Controller
 
     public function finish_reservation(Request $request)
     {
-        //valid input
-        $this->validate($request, [
-            'reservation_request' => 'required',
-            'room_index' => 'required|array',
-        ]);
-        $reservationRequest = $request->reservation_request;
-        // save to database
-        $reservationRequestId = $reservationRequest->id;
-        $roomNumbers = [];
+        try {
+            //valid input
+            $this->validate($request, [
+                'reservation_request' => 'required',
+                'room_index' => 'required|array',
+            ]);
+            $reservationRequest = $request->reservation_request;
+            // save to database
+            $reservationRequestId = $reservationRequest->id;
+            $roomNumbers = [];
 
-        foreach ($request->room_index as $rIdx) {
-            // save the room to the reservation table
-            $rev = new App\Reservation;
-            $rev->request_id = $reservationRequestId;
-            $rev->room_id = $rIdx;
-            $rev->save();
-            // find the number of the room
-            array_push($roomNumbers, App\Room::where('id', $rIdx)->first()->number);
+            foreach ($request->room_index as $rIdx) {
+                // save the room to the reservation table
+                $rev = new App\Reservation;
+                $rev->request_id = $reservationRequestId;
+                $rev->room_id = $rIdx;
+                $rev->save();
+                // find the number of the room
+                array_push($roomNumbers, App\Room::where('id', $rIdx)->first()->number);
+            }
+
+            // should do this before calculate the deposit
+            // 
+
+            $data = [
+                'reservation_request' => $request->reservation_request,
+                'room_index' => $request->room_index,
+                'room_numbers' => $roomNumbers
+            ];
+            
+            // send invoice
+            Mail::to($reservationRequest->email)
+                ->send(new App\Mail\ReservationConfirm($data));
+            
+            return response()->json([
+                "success" => true,
+            ]);
+        } catch(\Exception $e) {
+            return response()->json([
+                "error" => $e.getMessage()
+            ]);
         }
-
-        // should do this before calculate the deposit
-        // 
-
-        $data = [
-            'reservation_request' => $request->reservation_request,
-            'room_index' => $request->room_index,
-            'room_numbers' => $roomNumbers
-        ];
-        
-        // send invoice
-        Mail::to($reservationRequest->email)
-            ->send(new App\Mail\ReservationConfirm($data));
-        
-        return response()->json([
-            "success" => true,
-        ]);
-
     }
-    function payment()
+
+    public function find_room(Request $request)
     {
-        $intent = \Stripe\PaymentIntent::create([
-            'amount' => 1000,
-            'currency' => 'dollar'
-        ]); 
+        $this->validate($request, [
+            'room_type' => 'required',
+            'from_date' => 'required',
+            'to_date' => 'required'
+        ]);
+        
+        // ok so how to query
+        // starting with the whole set of hotel's rooms
+        // then with the set of current booked rooms
+        $roomType = $request->room_type;
+        //// find which room has not been reserved yet
+        $reservedRooms = Reservation::distinct()->get('room_id');
+        $roomArr = [];
+        foreach ( $reservedRooms as $r ) {
+            array_push($roomArr, $r->room_id);
+        }
+        $availableRooms = Room::where('type', $roomType)
+                                    ->whereNotIn('id', $roomArr)
+                                    ->get();
+        // none of available room
+        if ( count($availableRooms) == 0 ) {
+            // allocate by date
+            // NOT TESTED YET
+            $datedRooms = Reservation::where('to_date', '<', $request->from_date)
+                            ->get('room_id');
+ 
+            $datedRooms = $datedRoom->intersect(Room::where('type', $roomType)->get('id'));
+
+            if ( count($datedRooms) == 0) {
+                // room not found
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Can not find a room'
+                ]);
+            } else {
+                // room found
+                $selectedRoom = Room::where('id', $datedRooms->first())->get();
+                return response()->json([
+                    'status' => 'success',
+                    'plan' => 'added to reserved room',
+                    'room_id' => $selectedRoom->id,
+                    'room_number' => $selectedRoom->number,
+                ]);
+            }
+        } else {
+            // room found
+            $selectedRoom = $availableRooms->first();
+            return response()->json([
+                'status' => 'success',
+                'plan' => 'added to none reserved room',
+                'room_id' => $selectedRoom->id,
+                'room_number' => $selectedRoom->number,
+            ]);
+        }
+    }
+
+    public function reservation_payment(Request $request)
+    {
+        Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+        $intent = null;
+        try {
+            if ($request->has('payment_method_id')) {
+                $amount = $request->amount * 100;
+                $intent = Stripe\PaymentIntent::create([
+                    'payment_method' => $request->payment_method_id,
+                    'amount' => $amount,
+                    'currency' => 'aud',
+                    'confirmation_method' => 'manual',
+                    'confirm' => true, 
+                ]);
+            }
+
+            if ($request->has('payment_intent_id')) {
+                $intent = stripe\paymentintent::retrieve(
+                    $request->payment_intent_id
+                );
+                $intent->confirm();
+            }
+
+            $reservationData = (object)$request->reservation_data;
+
+            return $this->generatePaymentResponse($intent, $reservationData);
+        } catch (stripe\error\base $e) {
+            Log::error($e->getMessage());
+
+            return response()->json([
+                'error' => $e->getMessage()
+            ]); 
+        }
+    }
+
+    public function generatePaymentResponse($intent, $reservationData)
+    {
+        if ($intent->status == 'requires_action' && 
+            $intent->next_action->type == 'use_stripe_sdk') {
+            return response()->json([
+                'requires_action' => true,
+                'payment_intent_client_secret' => $intent->client_secret
+            ]);
+
+        } else if ($intent->status == 'succeeded') {
+            // add reservation infomation to the database
+            try {
+                $reservation = new Reservation;
+                $reservation->room_id = $reservationData->room_id;
+                $reservation->name = $reservationData->name;
+                $reservation->email = $reservationData->email;
+                $reservation->phone = $reservationData->phone;
+                $reservation->from_date = $reservationData->from_date;
+                $reservation->to_date = $reservationData->to_date;
+                $reservation->save();
+            
+                // send them email
+                // Mail::to($reservation->email)
+                //         ->send(new App\Mail\ReservationConfirm($reservationData));
+
+                return response()->json([
+                    'success' => true,
+                ]);
+
+            } catch (\Exception $e) {
+                return response()->json([
+                    'error' => $e->getMessage()
+                ]);
+            }
+        } else {
+            return response()->json([
+                'error' => 'Invalid PaymentIntent status'
+            ]);
+        }
     }
 }

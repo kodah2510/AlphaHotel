@@ -115,7 +115,7 @@
                         },
 
                         error: function(e) {
-                            alert('Error: ' + e.message);
+                            alert(e.error);
                         } 
                     });
                 });

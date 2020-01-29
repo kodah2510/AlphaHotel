@@ -20,4 +20,5 @@ Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
 Route::post('/reservation_content', 'HomeController@reservation_content')->name('reservationContent');
 Route::post('/finish_reservation', 'HotelController@finish_reservation')->name('finish_reservation');
-
+Route::post('/find_room', 'HotelController@find_room')->name('find_room');
+Route::post('/reservation_payment', 'HotelController@reservation_payment')->name('reservation_payment');

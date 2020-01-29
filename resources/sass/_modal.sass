@@ -3,14 +3,27 @@
 .modal
   hr
     background-color: $bg-color
+.modal-header
+  .modal-title
+    color: $fg-color
 .modal-content
-  background-color: $gruv-light-green
+  background-color: $gruv-dark-green
   color: $bg-color
+  .return-message
+    color: $fg-color
+    font-size: 21px
+    font-weight: 500
+    font-style: bold
+  label
+    color: $fg-color
 .modal-footer
   .fr-btn-close, .fr-btn-find
     background-color: $gruv-light-purple
     border-color: $gruv-dark-purple
     &:hover
+      background-color: $gruv-dark-purple
+      border-color: $gruv-dark-purple
+    &:focus
       background-color: $gruv-dark-purple
       border-color: $gruv-dark-purple
 

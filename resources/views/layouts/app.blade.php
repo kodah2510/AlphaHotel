@@ -74,23 +74,21 @@
                                 <a id="noticeDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <span class="fa fa-bell notice-bell" aria-hidden="true"></span>
                                 </a>
-                                @if ($request_count > 0)
-                                <div class="notice-count">{{ $request_count }}</div>
-                                @endif
+                                <!-- <div class="notice-count">{{-- $request_count --}}</div> -->
                                 <div class="dropdown-menu" aria-labelledby="noticeDropdown">
-                                    @foreach ($reservation_requests as $request)
-                                    <div class="card dropdown-item newsfeed" onclick="event.preventDefault(); document.getElementById('reservation-content-detail-form').submit();">
+                                    {{-- @foreach ($reservation_requests as $request) --}}
+                                    <!-- <div class="card dropdown-item newsfeed" onclick="event.preventDefault(); document.getElementById('reservation-content-detail-form').submit();">
                                         <div class="card-body">
-                                            <p class="newsfeed-title @if ($request->is_processed) font-weight-bold @endif"> {{ $request->name }} </p>
-                                            <p class="card-subtitle mb-2 text-muted newsfeed-subtitle">{{ $request->email }}</p>
-                                            <p class="card-text newsfeed-text">{{ $request->phone }}</p>
+                                            <p class="newsfeed-title {{-- @if ($request->is_processed) font-weight-bold @endif --}}"> {{-- $request->name --}} </p>
+                                            <p class="card-subtitle mb-2 text-muted newsfeed-subtitle">{{-- $request->email --}}</p>
+                                            <p class="card-text newsfeed-text">{{-- $request->phone --}}</p>
                                         </div>
                                     </div>
-                                   <form id="reservation-content-detail-form" action="{{ route('reservationContent') }}" method="POST" style="display:none;">
-                                        <input type="hidden" name="id" value="{{ $request->id }}">
+                                   <form id="reservation-content-detail-form" action="{{-- route('reservationContent') --}}" method="POST" style="display:none;">
+                                        <input type="hidden" name="id" value="{{-- $request->id --}}">
                                         @csrf
-                                   </form>
-                                    @endforeach
+                                   </form> -->
+                                    {{-- @endforeach --}}
                                 </div>
                             </li>
                         @endguest

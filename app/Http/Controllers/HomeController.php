@@ -9,8 +9,6 @@ use App\Room;
 
 class HomeController extends Controller
 {
-    public $request_count;
-    public $reservation_requests;
     /**
      * Create a new controller instance.
      *
@@ -18,8 +16,6 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->reservation_requests = ReservationRequest::where('is_processed', 0)->get();
-        $this->request_count = count($this->reservation_requests);
     }
 
     /**
@@ -31,12 +27,7 @@ class HomeController extends Controller
     {
         // call the api here
         // https://mailtrap.io/api/v1/inboxes 
-        //$reservation_requests = ReservationRequest::where('is_processed', 0)->get();
-        //$request_count = count($reservation_requests);
-        return view('home', [
-            'reservation_requests' => $this->reservation_requests,
-            'request_count' => $this->request_count
-        ]);
+        return view('home');
     }
 
     public function reservation_content(Request $request)

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="stripe-pk" content="{{ config('services.stripe.key') }}">
     <title>Alpha Hotel Template</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> 
     <link rel="stylesheet" href="{{ mix('css/main.css') }}">
@@ -39,10 +40,6 @@
                             <a class="nav-link" href="#">About</a>
                         </li>
                     </ul>
-                    <!-- <div class="btn-group auth-btn-group" role="group">
-                        <button class="btn btn-auth">Login</button>
-                        <button class="btn btn-auth">Register</button>
-                    </div> -->
                 </div>
             </nav>
 
@@ -54,12 +51,12 @@
                 </p>
                 <hr class="landing-underline underline-intro-anim"/>
                 <div class="landing-btn-group landing-btn-intro-anim">
-                    <a href="#" class="btn landing-btn ">Reservation</a>
-                    <a href="#" class="btn landing-btn-outline">Find out!</a>
+                    <a href="#Reservation" class="btn landing-btn ">Reservation</a>
+                    <a href="#Findout" class="btn landing-btn-outline">Find out!</a>
                 </div>
            </div>
         </div>
-        <div class="row services-intro">
+        <div id="Findout" class="row services-intro">
             <div class="col-lg-6 services-intro-description">
                 <!-- introductory --> 
                 <h1>Food and Drink</h1>
@@ -91,10 +88,10 @@
                             <td class="dish-name">Pho Cooktail</td>
                             <td class="dish-price">6.00$</td>
                         </tr>
-                    </table>    
+                    </table> 
                 </div>
-                
             </div>
+
             <div class="col-lg-6 services-intro-img">
                 <!-- Carousel -->
                 <div class="carousel slide" data-ride="carousel">
@@ -213,97 +210,56 @@
                                 <img id="modal-room-img" src="" alt="room image" class="img-fluid">
                             </div>
                             <div class="col-md-8">
-                                <form action="">
-                                    <div class="form-row">
+                                <form id="reservation-form" action="">
+                                    @csrf
+                                    <div id="room-found-msg" class="form-row d-none">
                                         <div class="col">
-                                            <label>Customer Name</label>
-                                            <input class="form-control form-control-sm" type="text" name="name" required>
+                                            <p class="return-message">We found a room for you!</p>
+                                            <p class="return-message">Please fill payment information to complete booking</p>
                                         </div>
                                     </div>
-                                    
-                                    <div class="form-row">
+                                    <div id="room-not-found-msg" class="form-row d-none">
                                         <div class="col">
-                                            <label>Email</label>
-                                            <input class="form-control form-control-sm" type="text" name="email" required>
-                                        </div>
-                                        <div class="col">
-                                            <label>Phone</label>
-                                            <input class="form-control form-control-sm" type="text" name="phone" required>
+                                            <p class="return-message">Sorry we cannot a room that you are looked for</p>
                                         </div>
                                     </div>
 
-                                    <div class="form-row">
+                                    <div id="customer-name-input" class="form-row d-none">
+                                        <div class="col">
+                                            <label>Customer Name</label>
+                                            <input class="form-control form-control-sm" type="text" name="pi_customer_name" required>
+                                        </div>
+                                    </div>
+                                    <div id="email-and-phone-input" class="form-row d-none">
+                                        <div class="col">
+                                            <label>Email</label>
+                                            <input class="form-control form-control-sm" type="text" name="pi_customer_email" required>
+                                        </div>
+                                        <div class="col">
+                                            <label>Phone</label>
+                                            <input class="form-control form-control-sm" type="text" name="pi_customer_phone" required>
+                                        </div>
+                                    </div>
+
+                                    <div id="payment-info" class="form-row d-none">
                                         <div class="col">
                                             <label for="">Payment Info</label>
                                             <input id="cardholder-name" class="form-control form-control-sm" type="text" name="cardholderName" placeholder="Card Holder" required>
                                             <div id="card-element"></div>
                                             <div id="card-errors" role="alert"></div>
                                         </div>
-                                        <script type="text/javascript">
-                                            $(function() {
-                                                var stripe = Stripe('{{ config('services.stripe.key') }}');
-                                                var elements = stripe.elements();
-                                                
-                                                var style = {
-                                                    base: {
-                                                        fontSize: '15px',
-                                                        fontFamily: 'Helvetica, Arial, sans-serif',
-                                                        fontSmoothing: 'antialiased',
-                                                        color: '#495057',
-                                                        'invalid' : {
-                                                            iconColor: '#FFC7EE',
-                                                            color: '#FFC7EE',
-                                                        },
-                                                    }
-                                                };
-                                                
-                                                var cardElement = elements.create('card', {style: style});
-                                                cardElement.mount('#card-element');
-                                                cardElement.addEventListener('change', function(event) {
-                                                    var displayError = document.getElementById('card-errors');
-                                                    if (event.error) {
-                                                        displayError.textContent = event.error.message;
-                                                    } else {
-                                                        displayError.textContent = '';
-                                                    }
-                                                })
-
-
-                                                //submit the payment to stripe from the client
-                                                var cardHolderName = $('#cardholder-name');
-                                                var cardButton = $('#card-button');
-                                                var clientSecret = cardButton[0].dataset.secret;
-
-                                                cardButton.on('click', function(e) {
-                                                    e.preventDefault();
-                                                    stripe.handleCardPayment(
-                                                        clientSecret, cardElement, {
-                                                            payment_method_data: {
-                                                                billing_details: {
-                                                                    name: cardHolderName.value
-                                                                }
-                                                            }
-                                                        }
-                                                    ).then(function(result) {
-                                                        if (result.error) {
-                                                            alert(result.error);
-                                                        } else {
-                                                            alert('payment success'); 
-                                                        }
-                                                    });
-                                                });
-                                            });
-                                        </script>
                                     </div>
 
                                     <div class="form-row">
                                         <div class="col">
-                                            <label for="#room-type-input">Room Type</label>
-                                            <input id="room-type-input" class="form-control form-control-sm" type="text">
+                                            <label for="#room-type-input"><h4>Room Type</h4></label>
+                                            <input id="room-type-input" class="form-control form-control" type="text" name="room_type">
                                         </div>
                                         <div class="col">
-                                            <label for="#room-type-input">Price</label>
-                                            <input id="room-price-input" class="form-control form-control-sm" type="text">
+                                            <label for="#room-type-input"><h4>Price</h4></label>
+                                            <input id="room-price-input" class="form-control form-control" type="text" name="room_price">
+                                            <input class="d-none" type="number" name="room_id">
+                                            <input class="d-none" type="number" name="room_number" >
                                         </div>
                                     </div>
                                     <div class="form-group form-row" style="margin-top: 5px" >
@@ -314,32 +270,27 @@
                                             <input id="to-date" class="form-control form-control-sm" type="date" placeholder="To Date" name="to_date" required>
                                         </div>
                                     </div>
-                                    <!--<script type="text/javascript">
-                                        //$(function() {
-                                            //$('#datetimepicker').datepicker();
-                                            //$('.input-daterange input').each(function() {
-                                            //    $(this).datepicker('clearDates');
-                                            //});
-                                        //});
-                                    </script>-->                
                                 </form>
                             </div>
                         </div>
                     </div>
-                    
+ 
                 </div>
+
                 <div class="modal-footer">
                     <button class="btn btn-secondary fr-btn-close" data-dismiss="modal">Close</button>
-                    <button id="card-button" data-secret="{{ $intent->client_secret }}" class="btn btn-primary fr-btn-find">Book this room</button>
+                    <button id="card-button" class="btn btn-primary fr-btn-find d-none">Book this room</button>
+                    <button id="find-room-button" class="btn btn-primary fr-btn-find" type="submit">Find Room</button>
                 </div>
             </div>
         </div>
-       </div>
+    </div> <!-- end of find-room-modal -->
+
     </div>
     <!-- how to book a room -->
-    <div class="container">
+    <div id="Reservation" class="container">
         <div class="row justify-content-center" style="margin-top: 50px; margin-bottom: 20px">
-            <h2 class="section-title">Make a reservation</h2>   
+            <h2 class="section-title">Make a reservation</h2>
         </div>
         <div class="jumbotron reservation-form">
             <p>Make reservation throught phone or email</p>
@@ -380,7 +331,7 @@
                             <input class="form-control" type="text" placeholder="To Date" name="to_date">
                         </div>
                     </div>
-                    
+
                 </div>
                 <script type="text/javascript">
                     $(function() {
@@ -424,7 +375,7 @@
                                     },
 
                                     error: function(e) {
-                                        console.log(e); 
+                                        console.log(e.error); 
                                     }
                                 }); 
                             });

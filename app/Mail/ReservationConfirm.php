@@ -7,6 +7,8 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Http\Request;
+use App\Room;
+use App\RoomPrice;
 
 class ReservationConfirm extends Mailable
 {
@@ -15,9 +17,11 @@ class ReservationConfirm extends Mailable
     public $email;
     public $name;
     public $phone;
-    public $customerNumber;
+    public $fromDate;
+    public $toDate;
+    public $roomNumber;
     public $roomType;
-    public $roomNumbers;
+    public $roomPrice;
 
     /**
      * Create a new message instance.
@@ -26,16 +30,15 @@ class ReservationConfirm extends Mailable
      */
     public function __construct($data)
     {
-        $reservationRequest = $data->reservation_request;
-
-        $this->email = $reservationRequest->email;
-        $this->name =  $reservationRequest->name;
-        $this->phone = $reservationRequest->phone;
-        $this->customerNumber = $reservationRequest->customerNumber;
-        $this->roomType = $reservationRequest->roomType;
-        $this->roomNumbers = $reservationRequest->roomNumbers;
+        $this->email = $data->email;
+        $this->name =  $data->name;
+        $this->phone = $data->phone;
+        $this->roomId = $data->room_id;
+        $r = App\Room::findOrFail($data->room_id);
+        $this->roomNumber = $r->number;
+        $this->roomType = $r->type;
+        $this->roomPrice = App\RoomPrice::where('type', $r->type)->get()->first();  
     }
-
     /**
      * Build the message.
      *
@@ -44,7 +47,16 @@ class ReservationConfirm extends Mailable
     public function build()
     {
         return $this->from($this->email, $this->name)
-                    ->subject('reservation request')
-                    ->view('email.reservationInfo');
+                    ->subject('Reservation Confirmation')
+                    ->view('email.reservationInfo')->with('data', [
+                        'name' => $this->name,
+                        'phone' => $this->phone,
+                        'email' => $this->email,
+                        'room_number' => $this->roomNumber,
+                        'room_type' => $this->roomType,
+                        'room_price' => $this->roomPrice,
+                        'from_date' => $this->fromDate,
+                        'to_date' => $this->toDate
+                    ]);
     }
 }
