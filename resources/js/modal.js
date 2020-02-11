@@ -49,12 +49,11 @@ $(function() {
             },
             dataType: 'JSON',
             success: function(data) {
-                console.log(data);
                 displayPaymentForm(data);
             },
 
             error: function(e) {
-                console.log(e);
+                alert(e.message);
             }
         });
     });

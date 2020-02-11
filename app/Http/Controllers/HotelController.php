@@ -108,12 +108,13 @@ class HotelController extends Controller
         // starting with the whole set of hotel's rooms
         // then with the set of current booked rooms
         $roomType = $request->room_type;
-        //// find which room has not been reserved yet
+        // find which room has not been reserved yet
         $reservedRooms = Reservation::distinct()->get('room_id');
         $roomArr = [];
         foreach ( $reservedRooms as $r ) {
             array_push($roomArr, $r->room_id);
         }
+
         $availableRooms = Room::where('type', $roomType)
                                     ->whereNotIn('id', $roomArr)
                                     ->get();
@@ -121,12 +122,27 @@ class HotelController extends Controller
         if ( count($availableRooms) == 0 ) {
             // allocate by date
             // NOT TESTED YET
+            // echo "none available rooms found";
+            // echo $request->to_date;
             $datedRooms = Reservation::where('to_date', '<', $request->from_date)
                             ->get('room_id');
- 
-            $datedRooms = $datedRoom->intersect(Room::where('type', $roomType)->get('id'));
+            // error_log($datedRooms);
+            
+            $singleRooms = Room::where('type', $roomType)->get('id');
+            $roomIdVal = $singleRooms->map(function ($elem) {
+                // error_log($elem);
+                return $elem["id"];
+            });
+            error_log($roomIdVal);
+            $datedRoomsId = $datedRooms->map(function($elem) {
+                return $elem["room_id"];
+            });
+            error_log($datedRoomsId);
 
-            if ( count($datedRooms) == 0) {
+            $anotherRooms = $datedRoomsId->intersect($roomIdVal);
+            error_log($anotherRooms);
+
+            if ( count($anotherRooms) == 0) {
                 // room not found
                 return response()->json([
                     'status' => 'error',
@@ -134,12 +150,15 @@ class HotelController extends Controller
                 ]);
             } else {
                 // room found
-                $selectedRoom = Room::where('id', $datedRooms->first())->get();
+                $selectedRoom = Room::where('id', $anotherRooms->first())->get();
+                
+                error_log($selectedRoom);
+
                 return response()->json([
                     'status' => 'success',
                     'plan' => 'added to reserved room',
-                    'room_id' => $selectedRoom->id,
-                    'room_number' => $selectedRoom->number,
+                    'room_id' => $selectedRoom[0]->id,
+                    'room_number' => $selectedRoom[0]->number,
                 ]);
             }
         } else {
@@ -148,8 +167,8 @@ class HotelController extends Controller
             return response()->json([
                 'status' => 'success',
                 'plan' => 'added to none reserved room',
-                'room_id' => $selectedRoom->id,
-                'room_number' => $selectedRoom->number,
+                'room_id' => $selectedRoom[0]->id,
+                'room_number' => $selectedRoom[0]->number,
             ]);
         }
     }
@@ -181,11 +200,11 @@ class HotelController extends Controller
 
             return $this->generatePaymentResponse($intent, $reservationData);
         } catch (stripe\error\base $e) {
-            Log::error($e->getMessage());
+            report($e);
 
             return response()->json([
                 'error' => $e->getMessage()
-            ]); 
+            ]);
         }
     }
 
