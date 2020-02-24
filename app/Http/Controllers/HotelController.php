@@ -1,14 +1,14 @@
 <?php
 
-use App\Mail\ReservationConfirm;
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\ReservationRequest;
 use App\Room;
+use App\RoomPrice;
 use App\Reservation;
 use Stripe;
+use App\Mail\ReservationConfirm;
 use Mail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -96,6 +96,11 @@ class HotelController extends Controller
         }
     }
 
+    public function view_find_room()
+    {
+        return view('find_room');
+    }
+
     public function find_room(Request $request)
     {
         $this->validate($request, [
@@ -115,62 +120,63 @@ class HotelController extends Controller
             array_push($roomArr, $r->room_id);
         }
 
-        $availableRooms = Room::where('type', $roomType)
-                                    ->whereNotIn('id', $roomArr)
-                                    ->get();
+        $availableRooms = DB::table('rooms')->where('rooms.type', $roomType)
+                                ->whereNotIn('rooms.id', $roomArr)
+                                ->join('room_prices', 'room_prices.type', '=', 'rooms.type')
+                                ->get();
+   
+        // dd([$request->from_date, $request->to_date]);
         // none of available room
         if ( count($availableRooms) == 0 ) {
             // allocate by date
             // NOT TESTED YET
-            // echo "none available rooms found";
-            // echo $request->to_date;
-            $datedRooms = Reservation::where('to_date', '<', $request->from_date)
-                            ->get('room_id');
-            // error_log($datedRooms);
+        
+            $anotherRooms = DB::table('reservations')
+                                ->join('rooms', 'reservations.room_id', '=', 'rooms.id')
+                                ->where('reservations.to_date', '<', $request->from_date)
+                                ->where('rooms.type', '=', $roomType)
+                                ->distinct()
+                                ->get('rooms.id');
+            $anotherRooms = $anotherRooms->map(function($m) {
+                return $m->id;
+            });
             
-            $singleRooms = Room::where('type', $roomType)->get('id');
-            $roomIdVal = $singleRooms->map(function ($elem) {
-                // error_log($elem);
-                return $elem["id"];
-            });
-            error_log($roomIdVal);
-            $datedRoomsId = $datedRooms->map(function($elem) {
-                return $elem["room_id"];
-            });
-            error_log($datedRoomsId);
-
-            $anotherRooms = $datedRoomsId->intersect($roomIdVal);
-            error_log($anotherRooms);
-
             if ( count($anotherRooms) == 0) {
                 // room not found
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Can not find a room'
-                ]);
-            } else {
-                // room found
-                $selectedRoom = Room::where('id', $anotherRooms->first())->get();
-                
-                error_log($selectedRoom);
+                return view('find_room');
 
-                return response()->json([
-                    'status' => 'success',
-                    'plan' => 'added to reserved room',
-                    'room_id' => $selectedRoom[0]->id,
-                    'room_number' => $selectedRoom[0]->number,
-                ]);
+            } else {
+                // error_log($anotherRooms);
+                // room found
+                $selectedRooms = DB::table('rooms')
+                            ->join('room_prices', 'rooms.type', '=', 'room_prices.type')
+                            ->whereIn('rooms.id', $anotherRooms)
+                            ->get();
+
+                return view('find_room', ['result' => $selectedRooms,
+                                            'to_date' => $request->to_date,
+                                            'from_date' => $request->from_date]);
             }
         } else {
             // room found
-            $selectedRoom = $availableRooms->first();
-            return response()->json([
-                'status' => 'success',
-                'plan' => 'added to none reserved room',
-                'room_id' => $selectedRoom[0]->id,
-                'room_number' => $selectedRoom[0]->number,
-            ]);
+            return view('find_room', ['result' => $availableRooms,
+                                        'from_date' => $request->from_date,
+                                        'to_date' => $request->to_date]);
         }
+    }
+
+    public function view_book_room(Request $request)
+    {
+        // dd($request->id);
+        $result = [
+            'id' => $request->id,
+            'type' => $request->type,
+            'number' => $request->number,
+            'price' => $request->price,
+            'from_date' => $request->from_date,
+            'to_date' => $request->to_date
+        ];
+        return view("book_room", ['result' => $result]);
     }
 
     public function reservation_payment(Request $request)
@@ -230,8 +236,8 @@ class HotelController extends Controller
                 $reservation->save();
             
                 // send them email
-                // Mail::to($reservation->email)
-                //         ->send(new App\Mail\ReservationConfirm($reservationData));
+                Mail::to($reservation->email)
+                        ->send(new ReservationConfirm($reservationData));
 
                 return response()->json([
                     'success' => true,

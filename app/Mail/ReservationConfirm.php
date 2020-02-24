@@ -34,10 +34,10 @@ class ReservationConfirm extends Mailable
         $this->name =  $data->name;
         $this->phone = $data->phone;
         $this->roomId = $data->room_id;
-        $r = App\Room::findOrFail($data->room_id);
+        $r = Room::findOrFail($data->room_id);
         $this->roomNumber = $r->number;
         $this->roomType = $r->type;
-        $this->roomPrice = App\RoomPrice::where('type', $r->type)->get()->first();  
+        $this->roomPrice = RoomPrice::where('type', $r->type)->get()->first();  
     }
     /**
      * Build the message.

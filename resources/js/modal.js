@@ -71,6 +71,9 @@ $(function() {
                 iconColor: '#FFC7EE',
                 color: '#FFC7EE',
             },
+            marginTop: '1em !important',
+            borderRadius: '0.2rem !important',
+            padding: 'padding: 0.375rem 0.75rem !important'
         }
     };
     
@@ -92,24 +95,26 @@ $(function() {
 
     cardButton.on('click', function(e) {
         e.preventDefault();
-        var roomId = $('input[name="room_id"]').val();
-        var roomPrice = $('input[name="room_price"]').val();
-        var name = $('input[name="pi_customer_name"]').val();
-        var email = $('input[name="pi_customer_email"]').val();
-        var phone = $('input[name="pi_customer_phone"]').val();
+        var roomId = $('input[name="id"]').val();
+        var roomPrice = $('input[name="price"]').val();
+        var firstName = $('input[name="first_name"]').val();
+        var lastName = $('input[name="last_name"]').val();
+        var email = $('input[name="email"]').val();
+        var phoneNumber = $('input[name="phone_number"]').val();
         var fromDate = $('input[name="from_date"]').val();
         var toDate = $('input[name="to_date"]').val();
 
         var reservationData = {
-            "name" : name,
+            "name" : firstName + ' ' + lastName,
             "email" : email,
-            "phone" : phone,
+            "phone" : phoneNumber,
             "room_id" : parseInt(roomId),
             "from_date" : fromDate,
             "to_date" : toDate
         };
 
         console.log(reservationData);
+
 
         stripe.createPaymentMethod('card', cardElement, {
             billing_details: {name: cardHolderName.val()}
@@ -136,6 +141,7 @@ $(function() {
             }
         })
     });
+
     var handleServerResponse = function(res, reservationData) {
         if (res.error) {
             alert(res.error); 
@@ -162,7 +168,7 @@ $(function() {
         } else {
             // success
             alert("Successfully booked a room");
-            $('#find-room-modal').modal('toggle');
+            window.location.replace('/');
         }
     }
     var displayPaymentForm = function(data) {
@@ -171,6 +177,7 @@ $(function() {
         $('#email-and-phone-input').removeClass('d-none');
         $('#payment-info').removeClass('d-none');
         $('#card-button').removeClass('d-none');
+        
         $('#find-room-button').addClass('d-none');
 
         $('input[name="room_id"]').val(data.room_id);

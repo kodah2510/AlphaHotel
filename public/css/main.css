@@ -217,6 +217,31 @@
   line-height: 1.5;
 }
 
+.room-search-instance {
+  border: 1px solid;
+  border-radius: 10px;
+  padding: 1em;
+  margin-top: 1rem;
+}
+
+.room-img {
+  width: 250px;
+}
+
+.room-book-btn {
+  position: absolute;
+  bottom: 0;
+}
+
+.StripeElement {
+  margin-top: 1em !important;
+  border-radius: 5px;
+}
+
+#card-element {
+  padding: 0.375rem 0.75rem !important;
+}
+
 html {
   scroll-behavior: smooth;
 }

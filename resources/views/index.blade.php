@@ -119,55 +119,45 @@
         <div class="row justify-content-center " style="padding-top: 30px;  margin-bottom: 30px">
             <h2 class="section-title">Our Rooms</h2>
         </div>
+
         <div class="row d-flex justify-content-between room-row">
-           <div class="col-md-4">
-            <div class="card room-card">
-                <img src="img/room_1.jpg" class="card-img-top img-fluid" alt="">
-                <div class="card-body room-card-body">
-                     <div class="card-title">
-                         <h5>Single room</h5>
-                     </div>
-                     <div class="card-text">
-                        <ul>
-                            <li>TV, AirCon</li>
-                            <li>Buffet Breakfast</li>
-                            <li>200$ / night</li>
-                        </ul>
-                        <button class="btn btn-primary find-room-btn w-100" type="button" 
-                            data-toggle="modal" 
-                            data-target="#find-room-modal"
-                            data-room-type="single"
-                            data-room-price="200"
-                            data-img-src="img/room_1.jpg"
-                            >Find Now</button>
-                     </div>
+            
+            <div class="col-md-4">
+                <div class="card room-card">
+                    <img src="img/room_1.jpg" class="card-img-top img-fluid" alt="">
+                    <div class="card-body room-card-body">
+                        <div class="card-title">
+                            <h5>Single room</h5>
+                        </div>
+                        <div class="card-text">
+                            <ul>
+                                <li>TV, AirCon</li>
+                                <li>Buffet Breakfast</li>
+                                <li>200$ / night</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
-           </div>
-           <div class="col-md-4">
-             <div class="card room-card">
-                <img src="img/room_2.jpg" class="card-img-top" alt="">
-                <div class="card-body room-card-body">
-                     <div class="card-title">
-                         <h5>Family Room</h5>
-                     </div>
-                     <div class="card-text">
-                        <ul>
-                            <li>TV, AirCon</li>
-                            <li>Buffet Breakfast</li>
-                            <li>250$ / night</li>
-                        </ul>
-                        <button class="btn btn-primary find-room-btn w-100" type="button" 
-                            data-toggle="modal" 
-                            data-target="#find-room-modal"
-                            data-room-type="family"
-                            data-room-price="250"
-                            data-img-src="img/room_2.jpg"
-                            >Find Now</button>
-                     </div>
+            
+            <div class="col-md-4">
+                <div class="card room-card">
+                    <img src="img/room_2.jpg" class="card-img-top" alt="">
+                    <div class="card-body room-card-body">
+                        <div class="card-title">
+                            <h5>Family Room</h5>
+                        </div>
+                        <div class="card-text">
+                            <ul>
+                                <li>TV, AirCon</li>
+                                <li>Buffet Breakfast</li>
+                                <li>250$ / night</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-            </div>
            </div>
+
            <div class="col-md-4">
                 <div class="card room-card">
                     <img src="img/room_3.jpg" class="card-img-top" alt="">
@@ -181,18 +171,18 @@
                                 <li>Buffet Breakfast</li>
                                 <li>300$ / night</li>
                             </ul>
-                            <button class="btn btn-primary find-room-btn w-100" type="button" 
-                                data-toggle="modal" 
-                                data-target="#find-room-modal"
-                                data-room-type="business"
-                                data-room-price="300"
-                                data-img-src="img/room_3.jpg"
-                                >Find Now</button>
                          </div>
                     </div>
                 </div> 
             </div>
+
+
        </div> 
+
+        <div class="row justify-content-center">
+            <a href="/view_find_room" class="btn btn-primary find-room-btn" style="width: 300px">Book Room</a>
+        </div>
+
        <div id="find-room-modal" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
